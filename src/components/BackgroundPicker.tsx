@@ -77,25 +77,25 @@ export function BackgroundPicker({
       {/* Status bar background - always visible to maintain green status bar */}
       <div
         className="fixed top-0 left-0 right-0 z-40 bg-logo-green"
-        style={{ height: 'env(safe-area-inset-top, 44px)' }}
+        style={{ height: 'max(env(safe-area-inset-top), 20px)' }}
       />
 
       {/* Tab-style navbar with center bulge - clickable to slide down and reveal slogan */}
       <div
         className="fixed left-0 right-0 z-50 cursor-pointer transition-all duration-500 ease-out"
         style={{
-          top: tabExpanded ? '0px' : '-40px',
+          top: tabExpanded ? '20px' : 'calc(max(env(safe-area-inset-top), 20px) - 40px)',
         }}
         onClick={() => setTabExpanded(!tabExpanded)}
       >
         {/* Hidden slogan bar at top - full width green background */}
         <div
           className="bg-logo-green text-center py-1.5"
-          style={{ paddingTop: 'max(env(safe-area-inset-top), 8px)' }}
+          style={{ paddingTop: 'max(env(safe-area-inset-top), 6px)' }}
         >
           <span
             className="text-white text-base tracking-wide"
-            style={{ fontFamily: "'Another Danger', cursive" }}
+            style={{ fontFamily: "'Another Danger', cursive", display: 'inline-block', transform: 'translateY(-15px)' }}
           >
             🌹 Rose City Til I Die! 🪓
           </span>
