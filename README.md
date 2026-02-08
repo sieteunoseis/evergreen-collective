@@ -1,73 +1,87 @@
-# React + TypeScript + Vite
+# Evergreen Collective
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A PWA for Portland Timbers fans to create custom iPhone lock screen wallpapers featuring the upcoming match schedule.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Custom Wallpapers** - Choose from curated Timbers-themed backgrounds
+- **Live Schedule Overlay** - Displays the next 5 matches with opponent logos
+- **Home/Away Styling** - Bold dates for home matches, italic for away
+- **Mobile-First Design** - Optimized for iPhone with safe area support
+- **Easy Sharing** - Uses Web Share API on mobile for one-tap save to Photos
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS v4
+- Canvas API for image generation
+- Web Share API for mobile sharing
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Install dependencies
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Start development server
+npm run dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Build for production
+npm run build
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## How It Works
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. User browses the wallpaper carousel and taps a design
+2. App loads the current Timbers schedule (mock data in dev, API in production)
+3. Canvas API composites the background with opponent logos and match dates
+4. On mobile, the Web Share API opens the share sheet for saving to Photos
+5. On desktop, a download button saves the PNG directly
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Project Structure
+
+```text
+src/
+├── components/
+│   ├── BackgroundPicker.tsx  # Main carousel and UI
+│   ├── ScheduleOverlay.tsx   # Schedule rendering
+│   └── WallpaperEditor.tsx   # Canvas composition
+├── hooks/
+│   ├── useSchedule.ts        # Schedule data fetching
+│   └── useImageExport.ts     # Canvas export logic
+├── lib/
+│   ├── constants.ts          # Colors, dimensions, backgrounds
+│   ├── mockData.ts           # Development fixture data
+│   └── utils.ts              # Utility functions
+└── App.tsx                   # Main app component
 ```
+
+## Adding Backgrounds
+
+Add new wallpaper images to `public/backgrounds/` and register them in `src/lib/constants.ts`:
+
+```typescript
+{
+  id: 'bg-new',
+  name: 'Display Name',
+  thumbnail: '/backgrounds/your-image.jpg',
+  fullRes: '/backgrounds/your-image.jpg',
+  credit: 'Artist Name', // optional
+}
+```
+
+## Screen Dimensions
+
+Wallpapers are generated at iPhone Pro Max resolution (1290 x 2796) for maximum quality. The layout accounts for iOS safe areas:
+
+- Clock zone: 15-33% from top
+- Schedule overlay: 72-90% from top
+- Dock zone: bottom 10%
+
+## License
+
+Built by fans, for fans. Rose City Til I Die.
