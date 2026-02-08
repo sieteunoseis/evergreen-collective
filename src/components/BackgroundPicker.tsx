@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
 import { type Background } from '@/lib/constants'
 import { useBackgrounds } from '@/hooks/useBackgrounds'
 
@@ -14,25 +15,48 @@ function formatExpirationDate(dateStr: string): string {
 }
 
 export function BackgroundPicker({
-  onSelect,
+  onSelect: onSelectBackground,
   exporting,
 }: BackgroundPickerProps) {
   const { backgrounds, loading: backgroundsLoading } = useBackgrounds()
-  const scrollRef = useRef<HTMLDivElement>(null)
-  // Start in the middle set - will be updated by scroll handler
-  const [activeIndex, setActiveIndex] = useState(() => 0)
+  const [selectedIndex, setSelectedIndex] = useState(0)
   const [tabExpanded, setTabExpanded] = useState(false)
   const [bottomTabExpanded, setBottomTabExpanded] = useState(false)
   const [bottomTabVisible, setBottomTabVisible] = useState(false)
-  const initialScrollDone = useRef(false)
 
-  // Create extended list with duplicates for infinite scroll effect
-  const extendedBackgrounds = useMemo(() => [
-    ...backgrounds,
-    ...backgrounds,
-    ...backgrounds,
-  ], [backgrounds])
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: 'center',
+    skipSnaps: false,
+    dragFree: false,
+    startIndex: 0,
+    containScroll: false, // Allow looping even when all slides fit
+  })
 
+  const onCarouselSelect = useCallback(() => {
+    if (!emblaApi || backgrounds.length === 0) return
+    // Map the carousel index back to the real background index
+    const slideIndex = emblaApi.selectedScrollSnap()
+    setSelectedIndex(slideIndex % backgrounds.length)
+  }, [emblaApi, backgrounds.length])
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    emblaApi.on('select', onCarouselSelect)
+    emblaApi.on('reInit', onCarouselSelect)
+    return () => {
+      emblaApi.off('select', onCarouselSelect)
+      emblaApi.off('reInit', onCarouselSelect)
+    }
+  }, [emblaApi, onCarouselSelect])
 
   // Track page scroll to show/hide bottom tab
   useEffect(() => {
@@ -47,34 +71,6 @@ export function BackgroundPicker({
     window.addEventListener('scroll', handlePageScroll, { passive: true })
     return () => window.removeEventListener('scroll', handlePageScroll)
   }, [])
-
-  // Scroll to middle set on mount when backgrounds are loaded
-  useEffect(() => {
-    if (scrollRef.current && backgrounds.length > 0 && !initialScrollDone.current) {
-      const cardWidth = 180
-      const gap = 16
-      const scrollTo = backgrounds.length * (cardWidth + gap)
-      scrollRef.current.scrollLeft = scrollTo
-      initialScrollDone.current = true
-    }
-  }, [backgrounds.length])
-
-  // Track scroll position to determine active card
-  useEffect(() => {
-    const container = scrollRef.current
-    if (!container || extendedBackgrounds.length === 0) return
-
-    const handleScroll = () => {
-      const cardWidth = 180
-      const gap = 16
-      const scrollLeft = container.scrollLeft
-      const index = Math.round(scrollLeft / (cardWidth + gap))
-      setActiveIndex(Math.max(0, Math.min(index, extendedBackgrounds.length - 1)))
-    }
-
-    container.addEventListener('scroll', handleScroll, { passive: true })
-    return () => container.removeEventListener('scroll', handleScroll)
-  }, [extendedBackgrounds.length])
 
   // Show loading state while backgrounds load
   if (backgroundsLoading) {
@@ -169,123 +165,140 @@ export function BackgroundPicker({
 
       {/* Featured carousel section */}
       <div className="py-6">
-        {/* Horizontal scroll carousel */}
-        <div
-          ref={scrollRef}
-          className="
-            flex gap-4 overflow-x-auto pb-4
-            snap-x snap-mandatory
-            scrollbar-hide
-          "
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            paddingLeft: 'calc(50% - 90px)',
-            paddingRight: 'calc(50% - 90px)',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          {extendedBackgrounds.map((bg, index) => {
-            const isActive = index === activeIndex
-            const distance = Math.abs(index - activeIndex)
-            const isNearby = distance <= 1
+        {/* Embla Carousel - constrained width for large screens */}
+        <div className="max-w-4xl mx-auto relative">
+          {/* Left arrow - hidden on mobile, visible on wide screens */}
+          <button
+            onClick={scrollPrev}
+            className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
+            aria-label="Previous slide"
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
 
-            return (
-              <button
-                key={`${bg.id}-${index}`}
-                onClick={() => onSelect(bg)}
-                disabled={exporting}
-                className={`
-                  group relative flex-shrink-0 overflow-hidden rounded-xl bg-gray-100
-                  transition-all duration-300 ease-out
-                  snap-center
-                  disabled:cursor-not-allowed
-                  ${isActive
-                    ? 'shadow-xl scale-100 opacity-100'
-                    : isNearby
-                      ? 'shadow-lg scale-95 opacity-70'
-                      : 'shadow-md scale-90 opacity-40 blur-[1px]'
-                  }
-                `}
-                style={{ width: 180 }}
-              >
-                {/* Image container with phone aspect ratio */}
-                <div className="aspect-[9/19.5] relative">
-                  <img
-                    src={bg.thumbnail}
-                    alt={bg.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                    draggable={false}
-                    onContextMenu={(e) => e.preventDefault()}
-                    style={{
-                      WebkitTouchCallout: 'none',
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none',
-                    }}
-                  />
+          {/* Right arrow - hidden on mobile, visible on wide screens */}
+          <button
+            onClick={scrollNext}
+            className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
+            aria-label="Next slide"
+          >
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
 
-                  {/* Info overlay box - transparent black with border at bottom */}
+          <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
+            <div className="flex touch-pan-y select-none">
+              {/* Duplicate slides for seamless looping on wide screens */}
+              {[...backgrounds, ...backgrounds, ...backgrounds].map((bg, index) => {
+                const realIndex = index % backgrounds.length
+                const isActive = realIndex === selectedIndex
+
+                return (
                   <div
-                    className={`
-                      absolute bottom-2 left-2 right-2 p-2
-                      bg-black/60 border border-white/20 rounded-lg
-                      transition-opacity duration-300 text-left
-                      ${isActive ? 'opacity-100' : 'opacity-0'}
-                    `}
+                    key={`${bg.id}-${index}`}
+                    className="min-w-0 flex-[0_0_180px] pl-4"
                   >
-                    <p className="text-white text-[10px] font-semibold truncate">
-                      {bg.name}
-                    </p>
-                    <p className="text-white/70 text-[8px] mt-0.5 line-clamp-2">
-                      {bg.description}
-                    </p>
-                    <p className="text-white/50 text-[7px] mt-1">
-                      by {bg.designer}
-                    </p>
-                    {bg.expiresAt && (
-                      <p className="text-amber-300 text-[7px] font-medium mt-0.5">
-                        Until {formatExpirationDate(bg.expiresAt)}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Download icon overlay */}
-                  <div
-                    className={`
-                      absolute top-2 right-2 w-8 h-8 rounded-full
-                      bg-black/30
-                      flex items-center justify-center
-                      transition-opacity duration-300
-                      ${isActive ? 'opacity-100' : 'opacity-0'}
-                    `}
-                  >
-                    <svg
-                      className="w-4 h-4 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                    <button
+                      onClick={() => onSelectBackground(bg)}
+                      disabled={exporting}
+                      className={`
+                        relative w-full overflow-hidden rounded-xl bg-gray-100
+                        transition-all duration-300 ease-out
+                        disabled:cursor-not-allowed
+                        ${isActive
+                          ? 'shadow-xl scale-100 opacity-100'
+                          : 'shadow-lg scale-95 opacity-60'
+                        }
+                      `}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    {/* Image container with phone aspect ratio */}
+                    <div className="aspect-[9/19.5] relative">
+                      <img
+                        src={bg.thumbnail}
+                        alt={bg.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                        draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
+                        style={{
+                          WebkitTouchCallout: 'none',
+                          WebkitUserSelect: 'none',
+                          userSelect: 'none',
+                        }}
                       />
-                    </svg>
-                  </div>
 
-                </div>
-              </button>
-            )
-          })}
+                      {/* Info overlay box - transparent black with border at bottom */}
+                      <div
+                        className={`
+                          absolute bottom-2 left-2 right-2 p-2
+                          bg-black/60 border border-white/20 rounded-lg
+                          transition-opacity duration-300 text-left
+                          ${isActive ? 'opacity-100' : 'opacity-0'}
+                        `}
+                      >
+                        <p className="text-white text-[10px] font-semibold truncate">
+                          {bg.name}
+                        </p>
+                        <p className="text-white/70 text-[8px] mt-0.5 line-clamp-2">
+                          {bg.description}
+                        </p>
+                        <p className="text-white/50 text-[7px] mt-1">
+                          by {bg.designer}
+                        </p>
+                        {bg.expiresAt && (
+                          <p className="text-amber-300 text-[7px] font-medium mt-0.5">
+                            Until {formatExpirationDate(bg.expiresAt)}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Download icon overlay */}
+                      <div
+                        className={`
+                          absolute top-2 right-2 w-8 h-8 rounded-full
+                          bg-black/30
+                          flex items-center justify-center
+                          transition-opacity duration-300
+                          ${isActive ? 'opacity-100' : 'opacity-0'}
+                        `}
+                      >
+                        <svg
+                          className="w-4 h-4 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                      </div>
+
+                    </div>
+                  </button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Tap hint */}
       <div className="px-4 text-center">
         <p className="text-gray-400 text-xs">
-          {exporting ? 'Generating wallpaper...' : 'Tap a wallpaper to save it'}
+          {exporting ? 'Generating wallpaper...' : (
+            <>
+              <span className="lg:hidden">Swipe to browse, tap to save</span>
+              <span className="hidden lg:inline">Drag to browse or use arrows, click to save</span>
+            </>
+          )}
         </p>
       </div>
 
