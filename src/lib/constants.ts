@@ -1,7 +1,5 @@
-// Portland Timbers brand colors
-export const TIMBERS_GREEN = '#004F30'
-export const TIMBERS_GOLD = '#EBE4D3'
-export const TIMBERS_DARK = '#00261A'
+// Re-export brand colors for backward compatibility
+export { BRAND_PRIMARY as TIMBERS_GREEN, BRAND_GOLD as TIMBERS_GOLD, BRAND_DARK as TIMBERS_DARK } from './brand'
 
 // SportMonks Team ID for Portland Timbers
 export const TIMBERS_TEAM_ID = 1977

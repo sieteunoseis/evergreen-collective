@@ -52,7 +52,7 @@
 
 /* Timbers brand colors as CSS custom properties */
 @theme {
-  --color-timbers-green: #004F30;
+  --color-timbers-green: #055032;
   --color-timbers-gold: #EBE4D3;
   --color-timbers-dark: #00261A;
   --color-accent-pink: #ff4f72;
@@ -61,7 +61,7 @@
   --color-accent-green: #4ade80;
   --color-accent-green-dark: #22c55e;
   /* Logo background green - matches EB logo */
-  --color-logo-green: #144528;
+  --color-logo-green: #055032;
   /* Font families */
   --font-display: 'Playfair Display', serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;

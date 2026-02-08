@@ -13,11 +13,22 @@ Evergreen Barracks - A PWA for Portland Timbers fans to create custom iPhone loc
 
 ## Important Files
 
+- `src/lib/brand.ts` - **Centralized brand config** (name, logo, colors)
 - `src/App.tsx` - Main app, preview modal, pinch-to-zoom
 - `src/components/BackgroundPicker.tsx` - Carousel, tab header, theme toggle
 - `src/hooks/usePWAInstall.ts` - PWA install detection, `isDesktopStandalone`
 - `src/hooks/useImageExport.ts` - Canvas-based wallpaper generation
 - `public/backgrounds.json` - Background metadata (loaded dynamically)
+
+## Brand Configuration
+
+All brand settings are centralized in `src/lib/brand.ts`:
+
+- Brand name, short name, description
+- Logo path
+- Brand colors (primary, headerGreen, dark, gold)
+
+**Note:** Static files (`index.html`, `public/manifest.json`) must be updated manually when changing brand colors, as they cannot import TypeScript.
 
 ## Platform Detection
 

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { type Background } from '@/lib/constants'
+import { BRAND } from '@/lib/brand'
 import { useBackgrounds } from '@/hooks/useBackgrounds'
 import { useTheme } from '@/hooks/useTheme'
 import { usePWAInstall } from '@/hooks/usePWAInstall'
@@ -260,10 +261,10 @@ export function BackgroundPicker({
           style={{ height: '90px', marginTop: '-1px' }}
         >
           {/* Extended rectangle at top to connect with slogan bar */}
-          <rect x="0" y="0" width="400" height="2" fill="#144528" />
+          <rect x="0" y="0" width="400" height="2" fill={BRAND.colors.headerGreen} />
           <path
             d="M0,0 L0,8 L60,8 Q75,8 82,25 L92,50 Q100,70 120,70 L280,70 Q300,70 308,50 L318,25 Q325,8 340,8 L400,8 L400,0 Z"
-            fill="#144528"
+            fill={BRAND.colors.headerGreen}
           />
         </svg>
 
@@ -275,8 +276,8 @@ export function BackgroundPicker({
           aria-label={tabExpanded ? 'Collapse header' : 'Expand header'}
         >
           <img
-            src="/logo/eb-logo-color.png"
-            alt="Evergreen Barracks"
+            src={BRAND.logo}
+            alt={BRAND.name}
             className="h-12 w-12 object-contain pointer-events-none"
           />
           <div className="flex flex-col">

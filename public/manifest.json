@@ -4,8 +4,8 @@
   "description": "Portland Timbers lock screen wallpapers with live schedule",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#004F30",
-  "theme_color": "#004F30",
+  "background_color": "#055032",
+  "theme_color": "#055032",
   "orientation": "portrait",
   "icons": [
     {
