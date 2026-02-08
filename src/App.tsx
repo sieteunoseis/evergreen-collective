@@ -5,6 +5,22 @@ import { BackgroundPicker } from '@/components/BackgroundPicker'
 import { useSchedule } from '@/hooks/useSchedule'
 import { useImageExport } from '@/hooks/useImageExport'
 
+// Log browser/platform info on load (only when VITE_DEBUG is set)
+if (typeof window !== 'undefined' && import.meta.env.VITE_DEBUG) {
+  const ua = navigator.userAgent
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || (window.navigator as { standalone?: boolean }).standalone === true
+  const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+  console.log('%c Evergreen Collective ', 'background: #004F30; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px;')
+  console.log('Platform Info:')
+  console.log('  User Agent:', ua)
+  console.log('  Standalone PWA:', isStandalone)
+  console.log('  Touch Device:', isMobile)
+  console.log('  Screen:', `${window.screen.width}x${window.screen.height} @ ${window.devicePixelRatio}x`)
+  console.log('  Viewport:', `${window.innerWidth}x${window.innerHeight}`)
+}
+
 function App() {
   const { fixtures, loading } = useSchedule()
   const { exporting, imageDataUrl, shareSuccess, debugLog, exportImage, clearImage, clearShareSuccess } = useImageExport()

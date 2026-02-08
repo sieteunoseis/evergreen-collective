@@ -22,7 +22,7 @@ export function BackgroundPicker({
 }: BackgroundPickerProps) {
   const { backgrounds, loading: backgroundsLoading } = useBackgrounds()
   const { theme, cycleTheme } = useTheme()
-  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall()
+  const { canInstall, isInstalled, isIOS, isDesktopStandalone, promptInstall } = usePWAInstall()
   const [showIOSInstructions, setShowIOSInstructions] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [tabExpanded, setTabExpanded] = useState(false)
@@ -109,13 +109,17 @@ export function BackgroundPicker({
           e.stopPropagation()
           cycleTheme()
         }}
-        className="fixed z-[51] w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-all duration-500 ease-out"
+        className="fixed z-[55] w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-all duration-500 ease-out"
         style={{
           top: tabExpanded
-            ? isInstalled
-              ? 'calc(max(env(safe-area-inset-top), 20px) + 140px)'
-              : 'calc(max(env(safe-area-inset-top), 20px) + 100px)'
-            : 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
+            ? isDesktopStandalone
+              ? '140px'
+              : isInstalled
+                ? 'calc(max(env(safe-area-inset-top), 20px) + 140px)'
+                : 'calc(max(env(safe-area-inset-top), 20px) + 100px)'
+            : isDesktopStandalone
+              ? '32px'
+              : 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
           right: '12px'
         }}
         aria-label={`Theme: ${theme}`}
@@ -148,13 +152,17 @@ export function BackgroundPicker({
               promptInstall()
             }
           }}
-          className="fixed z-[51] w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-all duration-500 ease-out"
+          className="fixed z-[55] w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-all duration-500 ease-out"
           style={{
             top: tabExpanded
-              ? isInstalled
-                ? 'calc(max(env(safe-area-inset-top), 20px) + 140px)'
-                : 'calc(max(env(safe-area-inset-top), 20px) + 100px)'
-              : 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
+              ? isDesktopStandalone
+                ? '140px'
+                : isInstalled
+                  ? 'calc(max(env(safe-area-inset-top), 20px) + 140px)'
+                  : 'calc(max(env(safe-area-inset-top), 20px) + 100px)'
+              : isDesktopStandalone
+                ? '32px'
+                : 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
             left: '12px'
           }}
           aria-label="Install app"
@@ -219,10 +227,14 @@ export function BackgroundPicker({
         className="fixed left-0 right-0 z-50 transition-all duration-500 ease-out pointer-events-none"
         style={{
           top: tabExpanded
-            ? 'calc(max(env(safe-area-inset-top), 20px))'
-            : isInstalled
-              ? '-40px'
-              : 'calc(max(env(safe-area-inset-top), 20px) - 45px)',
+            ? isDesktopStandalone
+              ? '20px'
+              : 'calc(max(env(safe-area-inset-top), 20px))'
+            : isDesktopStandalone
+              ? '-20px'
+              : isInstalled
+                ? '-40px'
+                : 'calc(max(env(safe-area-inset-top), 20px) - 45px)',
         }}
       >
         {/* Hidden slogan bar at top - full width green background */}
@@ -287,10 +299,14 @@ export function BackgroundPicker({
         className="transition-all duration-500 ease-out"
         style={{
           height: tabExpanded
-            ? isInstalled
-              ? 'calc(max(env(safe-area-inset-top), 20px) + 170px)'
-              : 'calc(max(env(safe-area-inset-top), 20px) + 130px)'
-            : 'calc(max(env(safe-area-inset-top), 20px) + 60px)',
+            ? isDesktopStandalone
+              ? '170px'
+              : isInstalled
+                ? 'calc(max(env(safe-area-inset-top), 20px) + 170px)'
+                : 'calc(max(env(safe-area-inset-top), 20px) + 130px)'
+            : isDesktopStandalone
+              ? '80px'
+              : 'calc(max(env(safe-area-inset-top), 20px) + 60px)',
         }}
       />
 

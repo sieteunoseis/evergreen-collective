@@ -82,6 +82,12 @@ Wallpapers are generated at iPhone Pro Max resolution (1290 x 2796) for maximum 
 - Schedule overlay: 72-90% from top
 - Dock zone: bottom 10%
 
+## Tested Platforms
+
+- Chrome on macOS (browser and installed PWA)
+- Safari on iOS 26
+- Chrome on iOS 26
+
 ## License
 
 Built by fans, for fans. Rose City Til I Die.
