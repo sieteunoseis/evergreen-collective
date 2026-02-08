@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { type Background } from '@/lib/constants'
 import { useBackgrounds } from '@/hooks/useBackgrounds'
+import { useTheme } from '@/hooks/useTheme'
 
 interface BackgroundPickerProps {
   onSelect: (background: Background) => void
@@ -19,6 +20,7 @@ export function BackgroundPicker({
   exporting,
 }: BackgroundPickerProps) {
   const { backgrounds, loading: backgroundsLoading } = useBackgrounds()
+  const { theme, setTheme } = useTheme()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [tabExpanded, setTabExpanded] = useState(false)
   const [bottomTabExpanded, setBottomTabExpanded] = useState(false)
@@ -75,19 +77,72 @@ export function BackgroundPicker({
   // Show loading state while backgrounds load
   if (backgroundsLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-logo-green border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-background overflow-hidden">
       {/* Status bar background - always visible to maintain green status bar */}
       <div
         className="fixed top-0 left-0 right-0 z-40 bg-logo-green"
         style={{ height: 'max(env(safe-area-inset-top), 20px)' }}
       />
+
+      {/* Theme toggle - bottom right */}
+      <div
+        className="fixed z-[51] flex items-center gap-1 p-1 rounded-full bg-background/80 backdrop-blur-sm border border-border"
+        style={{
+          bottom: 'calc(max(env(safe-area-inset-bottom), 20px) + 12px)',
+          right: '12px'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Light */}
+        <button
+          onClick={() => setTheme('light')}
+          className={`w-7 h-7 flex items-center justify-center rounded-full transition-all ${
+            theme === 'light'
+              ? 'bg-foreground text-background'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+          aria-label="Light mode"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+        {/* System */}
+        <button
+          onClick={() => setTheme('system')}
+          className={`w-7 h-7 flex items-center justify-center rounded-full transition-all ${
+            theme === 'system'
+              ? 'bg-foreground text-background'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+          aria-label="System mode"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </button>
+        {/* Dark */}
+        <button
+          onClick={() => setTheme('dark')}
+          className={`w-7 h-7 flex items-center justify-center rounded-full transition-all ${
+            theme === 'dark'
+              ? 'bg-foreground text-background'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+          aria-label="Dark mode"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
 
 
       {/* Tab-style navbar with center bulge - clickable to slide down and reveal slogan */}
@@ -170,10 +225,10 @@ export function BackgroundPicker({
           {/* Left arrow - hidden on mobile, visible on wide screens */}
           <button
             onClick={scrollPrev}
-            className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
+            className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-card shadow-lg hover:bg-muted transition-colors"
             aria-label="Previous slide"
           >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -181,10 +236,10 @@ export function BackgroundPicker({
           {/* Right arrow - hidden on mobile, visible on wide screens */}
           <button
             onClick={scrollNext}
-            className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-colors"
+            className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 items-center justify-center rounded-full bg-card shadow-lg hover:bg-muted transition-colors"
             aria-label="Next slide"
           >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -205,7 +260,7 @@ export function BackgroundPicker({
                       onClick={() => onSelectBackground(bg)}
                       disabled={exporting}
                       className={`
-                        relative w-full overflow-hidden rounded-xl bg-gray-100
+                        relative w-full overflow-hidden rounded-xl bg-muted
                         transition-all duration-300 ease-out
                         disabled:cursor-not-allowed
                         ${isActive
@@ -292,7 +347,7 @@ export function BackgroundPicker({
 
       {/* Tap hint */}
       <div className="px-4 text-center">
-        <p className="text-gray-400 text-xs">
+        <p className="text-muted-foreground text-xs">
           {exporting ? 'Generating wallpaper...' : (
             <>
               <span className="lg:hidden">Swipe to browse, tap to save</span>
@@ -305,28 +360,28 @@ export function BackgroundPicker({
       {/* About paragraph */}
       <div className="px-6 pt-8 pb-12 text-center max-w-md mx-auto">
         <h3
-          className="text-xl font-bold text-gray-800 mb-4"
+          className="text-xl font-bold text-foreground mb-4"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Your Schedule, Your Style
         </h3>
-        <p className="text-gray-500 text-sm leading-relaxed mb-4">
+        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
           Custom lock screen wallpapers featuring the upcoming Portland Timbers schedule.
           Each wallpaper displays the next 5 matches so you never miss a game.
         </p>
-        <p className="text-gray-500 text-sm leading-relaxed mb-4">
+        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
           Home matches are shown in bold, away matches in italics. The schedule updates
           automatically so your wallpaper is always current with the latest fixtures.
         </p>
-        <p className="text-gray-500 text-sm leading-relaxed">
-          Screen designs by <span className="font-medium text-gray-600">@shiftymoose</span> and <span className="font-medium text-gray-600">Pigeon Picnic Studio</span>. Built by fans, for fans. Rose City Til I Die.
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Screen designs by <span className="font-medium text-foreground">@shiftymoose</span> and <span className="font-medium text-foreground">Pigeon Picnic Studio</span>. Built by fans, for fans. Rose City Til I Die.
         </p>
       </div>
 
       {/* Additional content for scroll length */}
       <div className="px-6 pb-8 text-center max-w-md mx-auto">
         <h3
-          className="text-xl font-bold text-gray-800 mb-4"
+          className="text-xl font-bold text-foreground mb-4"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           How It Works
@@ -336,7 +391,7 @@ export function BackgroundPicker({
             <div className="w-8 h-8 rounded-full bg-logo-green/10 flex items-center justify-center flex-shrink-0">
               <span className="text-logo-green font-bold text-sm">1</span>
             </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Browse the wallpaper collection and find a design you love
             </p>
           </div>
@@ -344,7 +399,7 @@ export function BackgroundPicker({
             <div className="w-8 h-8 rounded-full bg-logo-green/10 flex items-center justify-center flex-shrink-0">
               <span className="text-logo-green font-bold text-sm">2</span>
             </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Tap to generate your personalized wallpaper with the current schedule
             </p>
           </div>
@@ -352,7 +407,7 @@ export function BackgroundPicker({
             <div className="w-8 h-8 rounded-full bg-logo-green/10 flex items-center justify-center flex-shrink-0">
               <span className="text-logo-green font-bold text-sm">3</span>
             </div>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Save to your photos and set as your lock screen wallpaper
             </p>
           </div>
@@ -377,17 +432,17 @@ export function BackgroundPicker({
         }}
         onClick={() => bottomTabVisible && setBottomTabExpanded(!bottomTabExpanded)}
       >
-          {/* Main tab shape - full width, inverted (pointing up), white */}
+          {/* Main tab shape - full width, inverted (pointing up) */}
           <div style={{ overflow: 'hidden', paddingTop: '10px', marginTop: '-10px' }}>
             <svg
-              className="w-full block"
+              className="w-full block text-card"
               viewBox="0 0 400 70"
               preserveAspectRatio="none"
               style={{ height: '70px', filter: 'drop-shadow(0 -4px 6px rgba(0,0,0,0.1))' }}
             >
               <path
                 d="M0,70 L0,62 L60,62 Q75,62 82,45 L92,20 Q100,0 120,0 L280,0 Q300,0 308,20 L318,45 Q325,62 340,62 L400,62 L400,70 Z"
-                fill="white"
+                fill="currentColor"
               />
             </svg>
           </div>
@@ -398,13 +453,13 @@ export function BackgroundPicker({
             style={{ top: '20px' }}
           >
             <span
-              className="text-gray-600 text-xs font-semibold tracking-widest uppercase"
+              className="text-muted-foreground text-xs font-semibold tracking-widest uppercase"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Connect
             </span>
             <svg
-              className={`w-3 h-3 text-gray-400 transition-transform duration-300 ${bottomTabExpanded ? 'rotate-180' : ''}`}
+              className={`w-3 h-3 text-muted-foreground transition-transform duration-300 ${bottomTabExpanded ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -415,7 +470,7 @@ export function BackgroundPicker({
 
           {/* Social links bar - full width, extends to safe area */}
           <div
-            className="bg-white w-full pt-4 flex justify-center gap-10"
+            className="bg-card w-full pt-4 flex justify-center gap-10"
             style={{ paddingBottom: 'calc(max(env(safe-area-inset-bottom), 20px) + 16px)' }}
           >
             {/* Instagram */}
@@ -423,7 +478,7 @@ export function BackgroundPicker({
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-logo-green transition-colors"
+              className="text-muted-foreground hover:text-logo-green transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -435,7 +490,7 @@ export function BackgroundPicker({
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-logo-green transition-colors"
+              className="text-muted-foreground hover:text-logo-green transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -447,7 +502,7 @@ export function BackgroundPicker({
               href="https://tiktok.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-logo-green transition-colors"
+              className="text-muted-foreground hover:text-logo-green transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -459,7 +514,7 @@ export function BackgroundPicker({
               href="https://youtube.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-logo-green transition-colors"
+              className="text-muted-foreground hover:text-logo-green transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -472,9 +527,9 @@ export function BackgroundPicker({
       {/* Loading overlay */}
       {exporting && (
         <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl px-8 py-6 flex flex-col items-center gap-3">
+          <div className="bg-card rounded-2xl px-8 py-6 flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-accent-green border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-600 text-sm">Generating wallpaper...</p>
+            <p className="text-muted-foreground text-sm">Generating wallpaper...</p>
           </div>
         </div>
       )}

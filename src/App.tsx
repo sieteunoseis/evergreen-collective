@@ -125,9 +125,9 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="w-8 h-8 border-2 border-accent-green border-t-transparent rounded-full animate-spin mb-4" />
-        <div className="text-gray-400 text-sm">Loading schedule...</div>
+        <div className="text-muted-foreground text-sm">Loading schedule...</div>
       </div>
     )
   }
@@ -138,7 +138,7 @@ function App() {
 
       {/* Image preview modal - z-[60] to be above tabs (z-50) and status bar bg (z-40) */}
       {imageDataUrl && (
-        <div className="fixed inset-0 z-[60] bg-white flex flex-col">
+        <div className="fixed inset-0 z-[60] bg-background flex flex-col">
           {/* Status bar background */}
           <div
             className="bg-logo-green"
@@ -200,24 +200,24 @@ function App() {
                     </svg>
                   </div>
                   <h2
-                    className="text-gray-900 text-xl font-bold mb-1"
+                    className="text-foreground text-xl font-bold mb-1"
                     style={{ fontFamily: "'Playfair Display', serif" }}
                   >
                     {isMobile ? 'Saved!' : 'Downloaded!'}
                   </h2>
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {isMobile ? 'Check your Photos app' : 'Check your Downloads folder'}
                   </p>
                 </>
               ) : (
                 <>
                   <h2
-                    className="text-gray-900 text-xl font-bold mb-1"
+                    className="text-foreground text-xl font-bold mb-1"
                     style={{ fontFamily: "'Playfair Display', serif" }}
                   >
                     Your Wallpaper is Ready!
                   </h2>
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Tap below to save to your device
                   </p>
                 </>
@@ -229,7 +229,7 @@ function App() {
               {/* Subtle glow effect behind phone */}
               <div className="absolute inset-0 bg-logo-green/10 blur-3xl rounded-full scale-150 pointer-events-none" />
               {/* Phone frame */}
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-gray-200">
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-border">
                 <img
                   src={imageDataUrl}
                   alt="Timbers Wallpaper"
@@ -256,7 +256,7 @@ function App() {
                   </button>
                   <button
                     onClick={handleClose}
-                    className="py-3 px-8 rounded-full bg-gray-100 text-gray-700 font-medium"
+                    className="py-3 px-8 rounded-full bg-muted text-muted-foreground font-medium"
                   >
                     Close
                   </button>
@@ -285,14 +285,14 @@ function App() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
           onClick={clearShareSuccess}
         >
-          <div className="bg-white rounded-2xl px-8 py-6 mx-6 text-center shadow-2xl">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-card rounded-2xl px-8 py-6 mx-6 text-center shadow-2xl">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-logo-green/20 flex items-center justify-center">
+              <svg className="w-8 h-8 text-logo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Saved!</h3>
-            <p className="text-gray-500 text-sm mb-4">Check your Photos app</p>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Saved!</h3>
+            <p className="text-muted-foreground text-sm mb-4">Check your Photos app</p>
             <button
               onClick={clearShareSuccess}
               className="py-2 px-6 rounded-full bg-gradient-to-r from-accent-green to-accent-green-dark text-white font-medium"
