@@ -60,8 +60,8 @@
   /* Light green accent colors */
   --color-accent-green: #4ade80;
   --color-accent-green-dark: #22c55e;
-  /* Logo background green */
-  --color-logo-green: #597B59;
+  /* Logo background green - matches EB logo */
+  --color-logo-green: #144528;
   /* Font families */
   --font-display: 'Playfair Display', serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;

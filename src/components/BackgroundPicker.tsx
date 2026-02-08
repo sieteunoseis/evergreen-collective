@@ -260,23 +260,23 @@ export function BackgroundPicker({
           style={{ height: '90px', marginTop: '-1px' }}
         >
           {/* Extended rectangle at top to connect with slogan bar */}
-          <rect x="0" y="0" width="400" height="2" fill="#597B59" />
+          <rect x="0" y="0" width="400" height="2" fill="#144528" />
           <path
             d="M0,0 L0,8 L60,8 Q75,8 82,25 L92,50 Q100,70 120,70 L280,70 Q300,70 308,50 L318,25 Q325,8 340,8 L400,8 L400,0 Z"
-            fill="#597B59"
+            fill="#144528"
           />
         </svg>
 
         {/* Clickable tab area - covers the center bulge portion */}
         <button
-          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3 cursor-pointer pointer-events-auto bg-transparent border-none p-4"
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 cursor-pointer pointer-events-auto bg-transparent border-none p-4"
           style={{ bottom: '16px' }}
           onClick={() => setTabExpanded(!tabExpanded)}
           aria-label={tabExpanded ? 'Collapse header' : 'Expand header'}
         >
           <img
-            src="/logo/logo-color.png"
-            alt="Evergreen Collective"
+            src="/logo/eb-logo-color.png"
+            alt="Evergreen Barracks"
             className="h-12 w-12 object-contain pointer-events-none"
           />
           <div className="flex flex-col">
@@ -290,7 +290,7 @@ export function BackgroundPicker({
               className="text-white/80 text-sm font-light leading-tight"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              Collective
+              Barracks
             </span>
           </div>
         </button>

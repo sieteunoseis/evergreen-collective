@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Evergreen Collective - A PWA for Portland Timbers fans to create custom iPhone lock screen wallpapers with schedule overlays.
+Evergreen Barracks - A PWA for Portland Timbers fans to create custom iPhone lock screen wallpapers with schedule overlays.
 
 ## Key Architecture
 

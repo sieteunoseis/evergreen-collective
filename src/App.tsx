@@ -13,7 +13,7 @@ if (typeof window !== 'undefined' && import.meta.env.VITE_DEBUG) {
     || (window.navigator as { standalone?: boolean }).standalone === true
   const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-  console.log('%c Evergreen Collective ', 'background: #004F30; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px;')
+  console.log('%c Evergreen Barracks ', 'background: #004F30; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px;')
   console.log('Platform Info:')
   console.log('  User Agent:', ua)
   console.log('  Standalone PWA:', isStandalone)
@@ -244,21 +244,21 @@ function App() {
               preserveAspectRatio="none"
               style={{ height: '90px' }}
             >
-              <rect x="0" y="0" width="400" height="2" fill="#597B59" />
+              <rect x="0" y="0" width="400" height="2" fill="#144528" />
               <path
                 d="M0,0 L0,8 L60,8 Q75,8 82,25 L92,50 Q100,70 120,70 L280,70 Q300,70 308,50 L318,25 Q325,8 340,8 L400,8 L400,0 Z"
-                fill="#597B59"
+                fill="#144528"
               />
             </svg>
 
             {/* Logo and text positioned over the center bulge */}
             <div
-              className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3"
+              className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5"
               style={{ bottom: '32px' }}
             >
               <img
-                src="/logo/logo-color.png"
-                alt="Evergreen Collective"
+                src="/logo/eb-logo-color.png"
+                alt="Evergreen Barracks"
                 className="h-12 w-12 object-contain"
               />
               <div className="flex flex-col">
@@ -272,7 +272,7 @@ function App() {
                   className="text-white/80 text-sm font-light leading-tight"
                   style={{ fontFamily: "'Inter', sans-serif" }}
                 >
-                  Collective
+                  Barracks
                 </span>
               </div>
             </div>
