@@ -5,7 +5,7 @@
       "name": "Timbers Logo",
       "description": "Classic Timbers axe logo on forest green",
       "designer": "Portland Timbers",
-      "file": "background-1.jpg",
+      "file": "background-1",
       "expiresAt": null
     },
     {
@@ -13,7 +13,7 @@
       "name": "Hold Your Ground",
       "description": "Supporter culture inspired design",
       "designer": "Timbers Army",
-      "file": "background-2.jpg",
+      "file": "background-2",
       "expiresAt": null
     },
     {
@@ -21,7 +21,7 @@
       "name": "Morton Salt",
       "description": "When it rains, we reign",
       "designer": "@shiftymoose",
-      "file": "morton-salt.png",
+      "file": "morton-salt",
       "expiresAt": "2026-03-15"
     },
     {
@@ -29,7 +29,7 @@
       "name": "Timber Jim",
       "description": "Tribute to the legend",
       "designer": "@shiftymoose",
-      "file": "timber-jim.png",
+      "file": "timber-jim",
       "expiresAt": "2026-03-15"
     },
     {
@@ -37,7 +37,7 @@
       "name": "2016 Jersey",
       "description": "Championship season kit pattern",
       "designer": "Pigeon Picnic Studio",
-      "file": "2016-portland-timbers-jersey.jpg",
+      "file": "2016-portland-timbers-jersey",
       "expiresAt": null
     },
     {
@@ -45,7 +45,7 @@
       "name": "Timbers City",
       "description": "Portland skyline meets Rose City pride",
       "designer": "Pigeon Picnic Studio",
-      "file": "timbers_city.png",
+      "file": "timbers_city",
       "expiresAt": "2026-04-01"
     }
   ]

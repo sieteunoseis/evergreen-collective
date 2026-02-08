@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Background } from '@/lib/constants'
-import { SCREEN_DIMENSIONS } from '@/lib/constants'
+import { getBackgroundUrl } from '@/lib/constants'
 import { BackgroundPicker } from '@/components/BackgroundPicker'
 import { useSchedule } from '@/hooks/useSchedule'
 import { useImageExport } from '@/hooks/useImageExport'
+import { useDeviceResolution } from '@/hooks/useDeviceResolution'
 
 // Log browser/platform info on load (only when VITE_DEBUG is set)
 if (typeof window !== 'undefined' && import.meta.env.VITE_DEBUG) {
@@ -24,6 +25,7 @@ if (typeof window !== 'undefined' && import.meta.env.VITE_DEBUG) {
 function App() {
   const { fixtures, loading } = useSchedule()
   const { exporting, imageDataUrl, shareSuccess, debugLog, exportImage, clearImage, clearShareSuccess } = useImageExport()
+  const deviceResolution = useDeviceResolution()
   const [isMobile, setIsMobile] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
   const [imageBlob, setImageBlob] = useState<Blob | null>(null)
@@ -55,11 +57,13 @@ function App() {
     }
   }, [imageDataUrl])
 
-  const { width, height } = SCREEN_DIMENSIONS.proMax
-
   const handleSelectBackground = async (background: Background) => {
+    // Get the appropriate resolution background URL for this device
+    const backgroundUrl = getBackgroundUrl(background.file, deviceResolution.suffix)
+    const { width, height } = deviceResolution
+
     // Always show preview first (skipShare = true)
-    await exportImage(background.fullRes, fixtures, width, height, true)
+    await exportImage(backgroundUrl, fixtures, width, height, true)
   }
 
   // Convert dataUrl to blob for sharing
@@ -275,59 +279,79 @@ function App() {
           </div>
 
           {/* Content area */}
-          <div className="flex-1 flex flex-col items-center justify-center p-6">
-            {/* Header text */}
-            <div className="text-center mb-6 shrink-0">
-              {downloaded ? (
-                <>
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-logo-green/20 flex items-center justify-center">
-                    <svg className="w-6 h-6 text-logo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex-1 flex items-center justify-center p-4">
+            {/* Preview with side buttons */}
+            <div className="relative flex items-center justify-center max-h-full">
+              {/* Stacked buttons - positioned absolutely to the left */}
+              <div className="absolute right-full mr-3 flex flex-col gap-3">
+                {/* Close button */}
+                <button
+                  onClick={handleClose}
+                  className="w-11 h-11 rounded-full bg-muted/80 backdrop-blur-sm flex items-center justify-center shadow-lg"
+                  aria-label="Close"
+                >
+                  <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                {/* Download/Done button */}
+                {downloaded ? (
+                  <button
+                    onClick={handleClose}
+                    className="w-11 h-11 rounded-full bg-logo-green flex items-center justify-center shadow-lg"
+                    aria-label="Done"
+                  >
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                  </div>
-                  <h2
-                    className="text-foreground text-xl font-bold mb-1"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  </button>
+                ) : (
+                  <button
+                    onClick={isMobile ? handleSaveToPhotos : handleDownload}
+                    className="w-11 h-11 rounded-full bg-logo-green flex items-center justify-center shadow-lg"
+                    aria-label={isMobile ? 'Save to Photos' : 'Download'}
                   >
-                    {isMobile ? 'Saved!' : 'Downloaded!'}
-                  </h2>
-                  <p className="text-muted-foreground text-sm">
-                    {isMobile ? 'Check your Photos app' : 'Check your Downloads folder'}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h2
-                    className="text-foreground text-xl font-bold mb-1"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
-                  >
-                    Your Wallpaper is Ready!
-                  </h2>
-                  <p className="text-muted-foreground text-sm">
-                    Tap below to save to your device
-                  </p>
-                </>
-              )}
-            </div>
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                )}
 
-            {/* Phone frame with image */}
-            <div className="relative flex-1 flex items-center justify-center min-h-0">
-              {/* Phone frame */}
+              </div>
+
+              {/* Phone frame with image */}
               <div
-                className="relative rounded-[2.5rem] overflow-hidden cursor-zoom-in"
+                className="relative rounded-[2.5rem] overflow-hidden cursor-zoom-in shrink"
                 onClick={toggleZoom}
               >
                 <img
                   src={imageDataUrl}
                   alt="Timbers Wallpaper"
-                  className="max-h-[50vh] w-auto pointer-events-none"
+                  className="max-h-[75vh] w-auto pointer-events-none"
                 />
+                {/* Resolution badge - centered */}
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-6 px-2 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                  <span className="text-[10px] font-medium text-white whitespace-nowrap">
+                    {deviceResolution.width}×{deviceResolution.height}
+                  </span>
+                </div>
                 {/* Zoom hint */}
                 <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-2">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
                   </svg>
                 </div>
+                {/* Success indicator overlay */}
+                {downloaded && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <div className="bg-white/90 rounded-full p-4">
+                      <svg className="w-10 h-10 text-logo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -368,32 +392,6 @@ function App() {
                 />
               </div>
             )}
-
-            <div className="flex gap-4 mt-6">
-              {downloaded ? (
-                <button
-                  onClick={handleClose}
-                  className="py-3 px-8 rounded-full bg-logo-green text-white font-medium shadow-lg"
-                >
-                  Done
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={isMobile ? handleSaveToPhotos : handleDownload}
-                    className="py-3 px-8 rounded-full bg-logo-green text-white font-medium shadow-lg"
-                  >
-                    {isMobile ? 'Save to Photos' : 'Download Wallpaper'}
-                  </button>
-                  <button
-                    onClick={handleClose}
-                    className="py-3 px-8 rounded-full bg-muted text-muted-foreground font-medium"
-                  >
-                    Close
-                  </button>
-                </>
-              )}
-            </div>
           </div>
         </div>
       )}

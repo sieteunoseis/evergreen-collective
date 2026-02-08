@@ -1,3 +1,55 @@
+# Asset Requirements
+
+## Wallpaper Background Images
+
+Designers should provide wallpaper backgrounds in the following resolutions. The app will automatically select the best resolution based on the user's device.
+
+### Required Resolutions
+
+| Suffix | Dimensions | Aspect Ratio | Target Device |
+|--------|------------|--------------|---------------|
+| `_thumb` | 207x449 | 9:19.5 | Carousel preview |
+| `_1024` | 1024x2219 | 9:19.5 | Standard displays, smaller iPhones |
+| `_1179` | 1179x2556 | 9:19.5 | iPhone Pro (14/15/16 Pro) |
+| `_1290` | 1290x2796 | 9:19.5 | iPhone Pro Max (14/15/16 Pro Max) |
+
+### File Naming Convention
+
+For a background called "morton-salt":
+```
+morton-salt_thumb.png   (207x449)
+morton-salt_1024.png    (1024x2219)
+morton-salt_1179.png    (1179x2556)
+morton-salt_1290.png    (1290x2796)
+```
+
+### Design Guidelines
+
+- **Aspect ratio**: All images must be 9:19.5 (iPhone lock screen)
+- **Safe zones**: Keep important content away from:
+  - Top 15-33%: iOS clock/date area
+  - Bottom 10%: iOS dock area
+  - Bottom 72-90%: Schedule overlay will be rendered here
+- **Format**: PNG preferred (supports transparency), JPG acceptable
+- **Color profile**: sRGB recommended
+
+### backgrounds.json Entry
+
+```json
+{
+  "id": "bg-5",
+  "name": "Morton Salt",
+  "description": "When it rains, we reign",
+  "designer": "@shiftymoose",
+  "file": "morton-salt",
+  "expiresAt": "2026-03-15"
+}
+```
+
+Note: The `file` field should be the base name without suffix or extension. The app will automatically append the appropriate suffix based on device resolution.
+
+---
+
 # PWA Icon Requirements
 
 ## Minimum Required Sizes

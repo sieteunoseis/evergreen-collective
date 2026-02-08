@@ -168,7 +168,8 @@ export function BackgroundPicker({
           aria-label="Install app"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11V7m0 0l-2 2m2-2l2 2" />
           </svg>
         </button>
       )}
@@ -185,7 +186,8 @@ export function BackgroundPicker({
           >
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-logo-green/20 flex items-center justify-center">
               <svg className="w-6 h-6 text-logo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11V7m0 0l-2 2m2-2l2 2" />
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">Add to Home Screen</h3>
@@ -346,7 +348,7 @@ export function BackgroundPicker({
                 return (
                   <div
                     key={`${bg.id}-${index}`}
-                    className="min-w-0 flex-[0_0_180px] pl-4"
+                    className="min-w-0 flex-[0_0_207px] pl-4"
                   >
                     <button
                       onClick={() => onSelectBackground(bg)}
@@ -356,8 +358,8 @@ export function BackgroundPicker({
                         transition-all duration-300 ease-out origin-center
                         disabled:cursor-not-allowed
                         ${isActive
-                          ? 'shadow-2xl opacity-100 scale-110'
-                          : 'shadow-lg opacity-50 scale-95'
+                          ? 'dark:shadow-2xl shadow-md opacity-100 scale-110'
+                          : 'dark:shadow-lg shadow-sm opacity-50 scale-95'
                         }
                       `}
                     >

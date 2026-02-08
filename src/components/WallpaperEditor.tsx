@@ -1,7 +1,8 @@
 import type { Background, Fixture } from '@/lib/constants'
-import { SCREEN_DIMENSIONS } from '@/lib/constants'
+import { getBackgroundUrl } from '@/lib/constants'
 import { ScheduleOverlay } from './ScheduleOverlay'
 import { useImageExport } from '@/hooks/useImageExport'
+import { useDeviceResolution } from '@/hooks/useDeviceResolution'
 
 interface WallpaperEditorProps {
   background: Background
@@ -15,12 +16,14 @@ export function WallpaperEditor({
   onBack,
 }: WallpaperEditorProps) {
   const { exporting, error, imageDataUrl, exportImage, clearImage } = useImageExport()
+  const deviceResolution = useDeviceResolution()
 
-  // Use Pro Max dimensions for export
-  const { width, height } = SCREEN_DIMENSIONS.proMax
+  // Use device-appropriate dimensions for export
+  const { width, height } = deviceResolution
 
   const handleSave = async () => {
-    await exportImage(background.fullRes, fixtures, width, height)
+    const backgroundUrl = getBackgroundUrl(background.file, deviceResolution.suffix)
+    await exportImage(backgroundUrl, fixtures, width, height)
   }
 
   return (
@@ -80,7 +83,7 @@ export function WallpaperEditor({
                 style={{ aspectRatio: `${width} / ${height}` }}
               >
                 <img
-                  src={background.fullRes}
+                  src={background.thumbnail}
                   alt={background.name}
                   className="absolute inset-0 w-full h-full object-cover"
                 />

@@ -8,11 +8,34 @@ export const TIMBERS_TEAM_ID = 1977
 
 // iPhone lock screen dimensions
 export const SCREEN_DIMENSIONS = {
-  // iPhone 14 Pro Max / 15 Pro Max / 16 Pro Max
-  proMax: { width: 1290, height: 2796 },
+  // Standard / smaller iPhones
+  standard: { width: 1024, height: 2219, suffix: '1024' },
   // iPhone 14 Pro / 15 Pro / 16 Pro
-  pro: { width: 1179, height: 2556 },
+  pro: { width: 1179, height: 2556, suffix: '1179' },
+  // iPhone 14 Pro Max / 15 Pro Max / 16 Pro Max
+  proMax: { width: 1290, height: 2796, suffix: '1290' },
 } as const
+
+export type ScreenDimension = typeof SCREEN_DIMENSIONS[keyof typeof SCREEN_DIMENSIONS]
+
+// Detect optimal screen dimensions based on device
+export function getOptimalScreenDimension(): ScreenDimension {
+  if (typeof window === 'undefined') return SCREEN_DIMENSIONS.proMax
+
+  const screenWidth = window.screen.width * window.devicePixelRatio
+  const screenHeight = window.screen.height * window.devicePixelRatio
+
+  // Use the larger dimension (could be portrait or landscape)
+  const maxDimension = Math.max(screenWidth, screenHeight)
+
+  if (maxDimension >= 2796) {
+    return SCREEN_DIMENSIONS.proMax
+  } else if (maxDimension >= 2556) {
+    return SCREEN_DIMENSIONS.pro
+  } else {
+    return SCREEN_DIMENSIONS.standard
+  }
+}
 
 // Layout zones (as percentages of total height)
 export const LAYOUT_ZONES = {
@@ -41,8 +64,9 @@ export interface Background {
   name: string
   description: string
   designer: string
+  /** Base file name without suffix (e.g., "morton-salt") */
+  file: string
   thumbnail: string
-  fullRes: string
   expiresAt: string | null
 }
 
@@ -56,16 +80,20 @@ interface BackgroundJson {
   expiresAt: string | null
 }
 
+// Get the full URL for a background at a specific resolution
+export function getBackgroundUrl(file: string, suffix: string): string {
+  return `/backgrounds/${file}_${suffix}.png`
+}
+
 // Transform JSON data to Background format
 function transformBackground(bg: BackgroundJson): Background {
-  const path = `/backgrounds/${bg.file}`
   return {
     id: bg.id,
     name: bg.name,
     description: bg.description,
     designer: bg.designer,
-    thumbnail: path,
-    fullRes: path,
+    file: bg.file,
+    thumbnail: getBackgroundUrl(bg.file, 'thumb'),
     expiresAt: bg.expiresAt,
   }
 }
