@@ -295,7 +295,7 @@ export function BackgroundPicker({
       />
 
       {/* Featured carousel section */}
-      <div className="py-6">
+      <div className="py-4">
         {/* Embla Carousel - constrained width for large screens */}
         <div className="max-w-4xl mx-auto relative">
           {/* Left arrow - hidden on mobile, visible on wide screens */}
@@ -320,8 +320,8 @@ export function BackgroundPicker({
             </svg>
           </button>
 
-          <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
-            <div className="flex touch-pan-y select-none">
+          <div className="overflow-hidden cursor-grab active:cursor-grabbing py-8" ref={emblaRef}>
+            <div className="flex touch-pan-y select-none items-center">
               {/* Duplicate slides for seamless looping on wide screens */}
               {[...backgrounds, ...backgrounds, ...backgrounds].map((bg, index) => {
                 const realIndex = index % backgrounds.length
@@ -337,11 +337,11 @@ export function BackgroundPicker({
                       disabled={exporting}
                       className={`
                         relative w-full overflow-hidden rounded-xl bg-muted
-                        transition-all duration-300 ease-out
+                        transition-all duration-300 ease-out origin-center
                         disabled:cursor-not-allowed
                         ${isActive
-                          ? 'shadow-xl scale-100 opacity-100'
-                          : 'shadow-lg scale-95 opacity-60'
+                          ? 'shadow-2xl opacity-100 scale-110'
+                          : 'shadow-lg opacity-50 scale-95'
                         }
                       `}
                     >
@@ -361,26 +361,26 @@ export function BackgroundPicker({
                         }}
                       />
 
-                      {/* Info overlay box - transparent black with border at bottom */}
+                      {/* Info overlay - edge to edge with gradient fade */}
                       <div
                         className={`
-                          absolute bottom-2 left-2 right-2 p-2
-                          bg-black/60 border border-white/20 rounded-lg
+                          absolute bottom-0 left-0 right-0 pt-16 pb-4 px-4
+                          bg-gradient-to-t from-black/90 via-black/60 to-transparent
                           transition-opacity duration-300 text-left
                           ${isActive ? 'opacity-100' : 'opacity-0'}
                         `}
                       >
-                        <p className="text-white text-[10px] font-semibold truncate">
+                        <p className="text-white text-sm font-semibold truncate">
                           {bg.name}
                         </p>
-                        <p className="text-white/70 text-[8px] mt-0.5 line-clamp-2">
+                        <p className="text-white/80 text-xs mt-1.5 line-clamp-2">
                           {bg.description}
                         </p>
-                        <p className="text-white/50 text-[7px] mt-1">
+                        <p className="text-white/60 text-[11px] mt-2">
                           by {bg.designer}
                         </p>
                         {bg.expiresAt && (
-                          <p className="text-amber-300 text-[7px] font-medium mt-0.5">
+                          <p className="text-amber-300 text-[11px] font-medium mt-1">
                             Until {formatExpirationDate(bg.expiresAt)}
                           </p>
                         )}

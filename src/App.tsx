@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Background } from '@/lib/constants'
 import { SCREEN_DIMENSIONS } from '@/lib/constants'
 import { BackgroundPicker } from '@/components/BackgroundPicker'
@@ -11,6 +11,11 @@ function App() {
   const [isMobile, setIsMobile] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
   const [imageBlob, setImageBlob] = useState<Blob | null>(null)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [scale, setScale] = useState(1)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const lastTouchRef = useRef<{ distance: number; x: number; y: number } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Detect mobile vs desktop
   useEffect(() => {
@@ -21,6 +26,18 @@ function App() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Prevent body scroll when preview modal is open
+  useEffect(() => {
+    if (imageDataUrl) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [imageDataUrl])
 
   const { width, height } = SCREEN_DIMENSIONS.proMax
 
@@ -120,7 +137,60 @@ function App() {
   const handleClose = () => {
     setDownloaded(false)
     setImageBlob(null)
+    setIsZoomed(false)
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
     clearImage()
+  }
+
+  // Pinch to zoom handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      )
+      const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2
+      const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2
+      lastTouchRef.current = { distance, x: centerX, y: centerY }
+    } else if (e.touches.length === 1 && scale > 1) {
+      lastTouchRef.current = { distance: 0, x: e.touches[0].clientX, y: e.touches[0].clientY }
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && lastTouchRef.current) {
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      )
+      const newScale = Math.min(Math.max(scale * (distance / lastTouchRef.current.distance), 1), 4)
+      setScale(newScale)
+      lastTouchRef.current.distance = distance
+    } else if (e.touches.length === 1 && lastTouchRef.current && scale > 1) {
+      const deltaX = e.touches[0].clientX - lastTouchRef.current.x
+      const deltaY = e.touches[0].clientY - lastTouchRef.current.y
+      setPosition(prev => ({ x: prev.x + deltaX, y: prev.y + deltaY }))
+      lastTouchRef.current = { distance: 0, x: e.touches[0].clientX, y: e.touches[0].clientY }
+    }
+  }
+
+  const handleTouchEnd = () => {
+    lastTouchRef.current = null
+    if (scale <= 1.1) {
+      setScale(1)
+      setPosition({ x: 0, y: 0 })
+    }
+  }
+
+  const toggleZoom = () => {
+    if (isZoomed) {
+      setIsZoomed(false)
+      setScale(1)
+      setPosition({ x: 0, y: 0 })
+    } else {
+      setIsZoomed(true)
+    }
   }
 
   if (loading) {
@@ -225,18 +295,63 @@ function App() {
             </div>
 
             {/* Phone frame with image */}
-            <div className="relative">
-              {/* Subtle glow effect behind phone */}
-              <div className="absolute inset-0 bg-logo-green/10 blur-3xl rounded-full scale-150 pointer-events-none" />
+            <div className="relative flex-1 flex items-center justify-center min-h-0">
               {/* Phone frame */}
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-border">
+              <div
+                className="relative rounded-[2.5rem] overflow-hidden cursor-zoom-in"
+                onClick={toggleZoom}
+              >
                 <img
                   src={imageDataUrl}
                   alt="Timbers Wallpaper"
                   className="max-h-[50vh] w-auto pointer-events-none"
                 />
+                {/* Zoom hint */}
+                <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-2">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                  </svg>
+                </div>
               </div>
             </div>
+
+            {/* Fullscreen zoom overlay */}
+            {isZoomed && (
+              <div
+                className="fixed inset-0 z-[70] bg-black flex items-center justify-center"
+                ref={containerRef}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {/* Close button */}
+                <button
+                  onClick={toggleZoom}
+                  className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+                  style={{ top: 'calc(env(safe-area-inset-top, 20px) + 16px)' }}
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                {/* Zoom hint text */}
+                <div className="absolute bottom-8 left-0 right-0 text-center text-white/60 text-sm">
+                  Pinch to zoom • Drag to pan
+                </div>
+
+                {/* Zoomable image */}
+                <img
+                  src={imageDataUrl}
+                  alt="Timbers Wallpaper"
+                  className="max-w-full max-h-full object-contain transition-transform duration-100"
+                  style={{
+                    transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                  }}
+                  draggable={false}
+                />
+              </div>
+            )}
 
             <div className="flex gap-4 mt-6">
               {downloaded ? (
