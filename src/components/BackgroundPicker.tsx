@@ -80,14 +80,7 @@ export function BackgroundPicker({
         style={{ height: 'max(env(safe-area-inset-top), 20px)' }}
       />
 
-      {/* Bottom safe area background - always visible to maintain white address bar */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white"
-        style={{
-          height: 'max(env(safe-area-inset-bottom), 20px)',
-        }}
-      />
-
+      
       {/* Tab-style navbar with center bulge - clickable to slide down and reveal slogan */}
       <div
         className="fixed left-0 right-0 z-50 cursor-pointer transition-all duration-500 ease-out"
@@ -343,32 +336,33 @@ export function BackgroundPicker({
         style={{
           bottom: bottomTabVisible
             ? bottomTabExpanded
-              ? 'calc(max(env(safe-area-inset-bottom), 20px))'
-              : 'calc(max(env(safe-area-inset-bottom), 20px) - 70px)'
-            : 'calc(max(env(safe-area-inset-bottom), 20px) - 160px)',
+              ? '0px'
+              : 'calc(-70px - max(env(safe-area-inset-bottom), 20px))'
+            : '-250px',
           opacity: bottomTabVisible ? 1 : 0,
           pointerEvents: bottomTabVisible ? 'auto' : 'none',
         }}
         onClick={() => bottomTabVisible && setBottomTabExpanded(!bottomTabExpanded)}
       >
           {/* Main tab shape - full width, inverted (pointing up), white */}
-          <svg
-            className="w-full block"
-            viewBox="0 0 400 70"
-            preserveAspectRatio="none"
-            style={{ height: '70px' }}
-          >
-            {/* Inverted path - mirror of top tab, adjusted to fill viewBox */}
-            <path
-              d="M0,70 L0,62 L60,62 Q75,62 82,45 L92,20 Q100,0 120,0 L280,0 Q300,0 308,20 L318,45 Q325,62 340,62 L400,62 L400,70 Z"
-              fill="white"
-            />
-          </svg>
+          <div style={{ overflow: 'hidden', paddingTop: '10px', marginTop: '-10px' }}>
+            <svg
+              className="w-full block"
+              viewBox="0 0 400 70"
+              preserveAspectRatio="none"
+              style={{ height: '70px', filter: 'drop-shadow(0 -4px 6px rgba(0,0,0,0.1))' }}
+            >
+              <path
+                d="M0,70 L0,62 L60,62 Q75,62 82,45 L92,20 Q100,0 120,0 L280,0 Q300,0 308,20 L318,45 Q325,62 340,62 L400,62 L400,70 Z"
+                fill="white"
+              />
+            </svg>
+          </div>
 
           {/* "Connect" text and chevron in the tab bulge */}
           <div
             className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
-            style={{ top: '22px' }}
+            style={{ top: '20px' }}
           >
             <span
               className="text-gray-600 text-xs font-semibold tracking-widest uppercase"
@@ -386,9 +380,10 @@ export function BackgroundPicker({
             </svg>
           </div>
 
-          {/* Social links bar - full width */}
+          {/* Social links bar - full width, extends to safe area */}
           <div
-            className="bg-white w-full py-4 flex justify-center gap-10"
+            className="bg-white w-full pt-4 flex justify-center gap-10"
+            style={{ paddingBottom: 'calc(max(env(safe-area-inset-bottom), 20px) + 16px)' }}
           >
             {/* Instagram */}
             <a
