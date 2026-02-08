@@ -39,59 +39,62 @@ export interface Fixture {
 export interface Background {
   id: string
   name: string
+  description: string
+  designer: string
   thumbnail: string
   fullRes: string
-  credit?: string
+  expiresAt: string | null
 }
 
-// Available backgrounds
-export const BACKGROUNDS: Background[] = [
-  {
-    id: 'bg-1',
-    name: 'Timbers Logo',
-    thumbnail: '/backgrounds/background-1.jpg',
-    fullRes: '/backgrounds/background-1.jpg',
-  },
-  {
-    id: 'bg-2',
-    name: 'Hold Your Ground',
-    thumbnail: '/backgrounds/background-2.jpg',
-    fullRes: '/backgrounds/background-2.jpg',
-  },
-  {
-    id: 'bg-3',
-    name: 'Safe Zones Guide',
-    thumbnail: '/backgrounds/iphone-safe-zones-wallpaper.png',
-    fullRes: '/backgrounds/iphone-safe-zones-wallpaper.png',
-  },
-  {
-    id: 'bg-4',
-    name: 'Layout Wireframe',
-    thumbnail: '/backgrounds/iphone-wallpaper-wireframe.png',
-    fullRes: '/backgrounds/iphone-wallpaper-wireframe.png',
-  },
-  {
-    id: 'bg-5',
-    name: 'Morton Salt',
-    thumbnail: '/backgrounds/morton-salt.png',
-    fullRes: '/backgrounds/morton-salt.png',
-  },
-  {
-    id: 'bg-6',
-    name: 'Timber Jim',
-    thumbnail: '/backgrounds/timber-jim.png',
-    fullRes: '/backgrounds/timber-jim.png',
-  },
-  {
-    id: 'bg-7',
-    name: '2016 Jersey',
-    thumbnail: '/backgrounds/2016-portland-timbers-jersey.jpg',
-    fullRes: '/backgrounds/2016-portland-timbers-jersey.jpg',
-  },
-  {
-    id: 'bg-8',
-    name: 'Timbers City',
-    thumbnail: '/backgrounds/timbers_city.png',
-    fullRes: '/backgrounds/timbers_city.png',
-  },
-]
+// Raw background data from JSON
+interface BackgroundJson {
+  id: string
+  name: string
+  description: string
+  designer: string
+  file: string
+  expiresAt: string | null
+}
+
+// Transform JSON data to Background format
+function transformBackground(bg: BackgroundJson): Background {
+  const path = `/backgrounds/${bg.file}`
+  return {
+    id: bg.id,
+    name: bg.name,
+    description: bg.description,
+    designer: bg.designer,
+    thumbnail: path,
+    fullRes: path,
+    expiresAt: bg.expiresAt,
+  }
+}
+
+// Filter out expired backgrounds
+function isNotExpired(bg: Background): boolean {
+  if (!bg.expiresAt) return true
+  return new Date(bg.expiresAt) > new Date()
+}
+
+// Load backgrounds from JSON (cached)
+let backgroundsCache: Background[] | null = null
+
+export async function loadBackgrounds(): Promise<Background[]> {
+  if (backgroundsCache) return backgroundsCache
+
+  try {
+    const response = await fetch('/backgrounds/backgrounds.json')
+    const data = await response.json()
+    const filtered = data.backgrounds
+      .map(transformBackground)
+      .filter(isNotExpired)
+    backgroundsCache = filtered
+    return filtered
+  } catch {
+    console.error('Failed to load backgrounds.json')
+    return []
+  }
+}
+
+// Fallback static backgrounds (used for initial render)
+export const BACKGROUNDS: Background[] = []

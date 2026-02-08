@@ -1,35 +1,44 @@
-import { useRef, useEffect, useState } from 'react'
-import { BACKGROUNDS, type Background } from '@/lib/constants'
+import { useRef, useEffect, useState, useMemo } from 'react'
+import { type Background } from '@/lib/constants'
+import { useBackgrounds } from '@/hooks/useBackgrounds'
 
 interface BackgroundPickerProps {
   onSelect: (background: Background) => void
   exporting?: boolean
 }
 
-// Create extended list with duplicates for infinite scroll effect
-const EXTENDED_BACKGROUNDS = [
-  ...BACKGROUNDS,
-  ...BACKGROUNDS,
-  ...BACKGROUNDS,
-]
+// Format expiration date for display
+function formatExpirationDate(dateStr: string): string {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
 
 export function BackgroundPicker({
   onSelect,
   exporting,
 }: BackgroundPickerProps) {
+  const { backgrounds, loading: backgroundsLoading } = useBackgrounds()
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(BACKGROUNDS.length) // Start at middle set
+  // Start in the middle set - will be updated by scroll handler
+  const [activeIndex, setActiveIndex] = useState(() => 0)
   const [tabExpanded, setTabExpanded] = useState(false)
   const [bottomTabExpanded, setBottomTabExpanded] = useState(false)
   const [bottomTabVisible, setBottomTabVisible] = useState(false)
+  const initialScrollDone = useRef(false)
+
+  // Create extended list with duplicates for infinite scroll effect
+  const extendedBackgrounds = useMemo(() => [
+    ...backgrounds,
+    ...backgrounds,
+    ...backgrounds,
+  ], [backgrounds])
+
 
   // Track page scroll to show/hide bottom tab
   useEffect(() => {
     const handlePageScroll = () => {
-      // Show bottom tab after scrolling down 100px
       const shouldShow = window.scrollY > 100
       setBottomTabVisible(shouldShow)
-      // Hide expanded state when tab becomes hidden
       if (!shouldShow) {
         setBottomTabExpanded(false)
       }
@@ -39,38 +48,42 @@ export function BackgroundPicker({
     return () => window.removeEventListener('scroll', handlePageScroll)
   }, [])
 
-
-  // Scroll to middle set on mount, centering the first card of the middle set
+  // Scroll to middle set on mount when backgrounds are loaded
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && backgrounds.length > 0 && !initialScrollDone.current) {
       const cardWidth = 180
       const gap = 16
-      // Scroll to center the first card of the middle set (index = BACKGROUNDS.length)
-      // scrollLeft = 0 means the first card is centered (due to padding)
-      // Each subsequent card requires scrolling by (cardWidth + gap)
-      const scrollTo = BACKGROUNDS.length * (cardWidth + gap)
+      const scrollTo = backgrounds.length * (cardWidth + gap)
       scrollRef.current.scrollLeft = scrollTo
+      initialScrollDone.current = true
     }
-  }, [])
+  }, [backgrounds.length])
 
   // Track scroll position to determine active card
   useEffect(() => {
     const container = scrollRef.current
-    if (!container) return
+    if (!container || extendedBackgrounds.length === 0) return
 
     const handleScroll = () => {
       const cardWidth = 180
       const gap = 16
       const scrollLeft = container.scrollLeft
-      // Since padding centers the first card at scrollLeft=0,
-      // the active index is simply scrollLeft / (cardWidth + gap)
       const index = Math.round(scrollLeft / (cardWidth + gap))
-      setActiveIndex(Math.max(0, Math.min(index, EXTENDED_BACKGROUNDS.length - 1)))
+      setActiveIndex(Math.max(0, Math.min(index, extendedBackgrounds.length - 1)))
     }
 
     container.addEventListener('scroll', handleScroll, { passive: true })
     return () => container.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [extendedBackgrounds.length])
+
+  // Show loading state while backgrounds load
+  if (backgroundsLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-logo-green border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
@@ -80,7 +93,7 @@ export function BackgroundPicker({
         style={{ height: 'max(env(safe-area-inset-top), 20px)' }}
       />
 
-      
+
       {/* Tab-style navbar with center bulge - clickable to slide down and reveal slogan */}
       <div
         className="fixed left-0 right-0 z-50 cursor-pointer transition-all duration-500 ease-out"
@@ -156,10 +169,6 @@ export function BackgroundPicker({
 
       {/* Featured carousel section */}
       <div className="py-6">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 px-4">
-          Tap to Download
-        </h2>
-
         {/* Horizontal scroll carousel */}
         <div
           ref={scrollRef}
@@ -176,7 +185,7 @@ export function BackgroundPicker({
             WebkitOverflowScrolling: 'touch',
           }}
         >
-          {EXTENDED_BACKGROUNDS.map((bg, index) => {
+          {extendedBackgrounds.map((bg, index) => {
             const isActive = index === activeIndex
             const distance = Math.abs(index - activeIndex)
             const isNearby = distance <= 1
@@ -216,17 +225,27 @@ export function BackgroundPicker({
                     }}
                   />
 
-                  {/* Gradient overlay at bottom */}
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-
-                  {/* Title overlay bar */}
-                  <div className={`absolute bottom-0 left-0 right-0 p-3 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                    <p className="text-white text-xs font-medium text-left truncate">
+                  {/* Info overlay box - transparent black with border at bottom */}
+                  <div
+                    className={`
+                      absolute bottom-2 left-2 right-2 p-2
+                      bg-black/60 border border-white/20 rounded-lg
+                      transition-opacity duration-300 text-left
+                      ${isActive ? 'opacity-100' : 'opacity-0'}
+                    `}
+                  >
+                    <p className="text-white text-[10px] font-semibold truncate">
                       {bg.name}
                     </p>
-                    {bg.credit && (
-                      <p className="text-white/60 text-[10px] text-left truncate mt-0.5">
-                        by {bg.credit}
+                    <p className="text-white/70 text-[8px] mt-0.5 line-clamp-2">
+                      {bg.description}
+                    </p>
+                    <p className="text-white/50 text-[7px] mt-1">
+                      by {bg.designer}
+                    </p>
+                    {bg.expiresAt && (
+                      <p className="text-amber-300 text-[7px] font-medium mt-0.5">
+                        Until {formatExpirationDate(bg.expiresAt)}
                       </p>
                     )}
                   </div>
@@ -255,6 +274,7 @@ export function BackgroundPicker({
                       />
                     </svg>
                   </div>
+
                 </div>
               </button>
             )

@@ -1,0 +1,52 @@
+{
+  "backgrounds": [
+    {
+      "id": "bg-1",
+      "name": "Timbers Logo",
+      "description": "Classic Timbers axe logo on forest green",
+      "designer": "Portland Timbers",
+      "file": "background-1.jpg",
+      "expiresAt": null
+    },
+    {
+      "id": "bg-2",
+      "name": "Hold Your Ground",
+      "description": "Supporter culture inspired design",
+      "designer": "Timbers Army",
+      "file": "background-2.jpg",
+      "expiresAt": null
+    },
+    {
+      "id": "bg-5",
+      "name": "Morton Salt",
+      "description": "When it rains, we reign",
+      "designer": "@shiftymoose",
+      "file": "morton-salt.png",
+      "expiresAt": "2026-03-15"
+    },
+    {
+      "id": "bg-6",
+      "name": "Timber Jim",
+      "description": "Tribute to the legend",
+      "designer": "@shiftymoose",
+      "file": "timber-jim.png",
+      "expiresAt": "2026-03-15"
+    },
+    {
+      "id": "bg-7",
+      "name": "2016 Jersey",
+      "description": "Championship season kit pattern",
+      "designer": "Pigeon Picnic Studio",
+      "file": "2016-portland-timbers-jersey.jpg",
+      "expiresAt": null
+    },
+    {
+      "id": "bg-8",
+      "name": "Timbers City",
+      "description": "Portland skyline meets Rose City pride",
+      "designer": "Pigeon Picnic Studio",
+      "file": "timbers_city.png",
+      "expiresAt": "2026-04-01"
+    }
+  ]
+}
