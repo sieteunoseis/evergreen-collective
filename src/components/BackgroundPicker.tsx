@@ -337,18 +337,20 @@ export function BackgroundPicker({
       <div className="h-24" />
 
 
-      {/* Bottom tab with socials - only visible after scrolling, slides up to reveal */}
-      {bottomTabVisible && (
-        <div
-          className="fixed left-0 right-0 z-50 cursor-pointer transition-all duration-500 ease-out"
-          style={{
-            bottom: bottomTabExpanded
+      {/* Bottom tab with socials - slides up when scrolling */}
+      <div
+        className="fixed left-0 right-0 z-50 cursor-pointer transition-all duration-700 ease-out"
+        style={{
+          bottom: bottomTabVisible
+            ? bottomTabExpanded
               ? 'calc(max(env(safe-area-inset-bottom), 20px))'
-              : 'calc(max(env(safe-area-inset-bottom), 20px) - 70px)',
-            filter: 'drop-shadow(0 -4px 12px rgba(0,0,0,0.15))',
-          }}
-          onClick={() => setBottomTabExpanded(!bottomTabExpanded)}
-        >
+              : 'calc(max(env(safe-area-inset-bottom), 20px) - 70px)'
+            : 'calc(max(env(safe-area-inset-bottom), 20px) - 160px)',
+          opacity: bottomTabVisible ? 1 : 0,
+          pointerEvents: bottomTabVisible ? 'auto' : 'none',
+        }}
+        onClick={() => bottomTabVisible && setBottomTabExpanded(!bottomTabExpanded)}
+      >
           {/* Main tab shape - full width, inverted (pointing up), white */}
           <svg
             className="w-full block"
@@ -436,9 +438,8 @@ export function BackgroundPicker({
                 <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
             </a>
-          </div>
         </div>
-      )}
+      </div>
 
       {/* Loading overlay */}
       {exporting && (
