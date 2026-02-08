@@ -3,6 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { type Background } from '@/lib/constants'
 import { useBackgrounds } from '@/hooks/useBackgrounds'
 import { useTheme } from '@/hooks/useTheme'
+import { usePWAInstall } from '@/hooks/usePWAInstall'
 
 interface BackgroundPickerProps {
   onSelect: (background: Background) => void
@@ -20,7 +21,9 @@ export function BackgroundPicker({
   exporting,
 }: BackgroundPickerProps) {
   const { backgrounds, loading: backgroundsLoading } = useBackgrounds()
-  const { theme, setTheme } = useTheme()
+  const { theme, cycleTheme } = useTheme()
+  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall()
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [tabExpanded, setTabExpanded] = useState(false)
   const [bottomTabExpanded, setBottomTabExpanded] = useState(false)
@@ -91,67 +94,136 @@ export function BackgroundPicker({
         style={{ height: 'max(env(safe-area-inset-top), 20px)' }}
       />
 
-      {/* Theme toggle - bottom right */}
+      {/* Cover for slogan - hides "Rose City" until tab is expanded */}
       <div
-        className="fixed z-[51] flex items-center gap-1 p-1 rounded-full bg-background/80 backdrop-blur-sm border border-border"
+        className="fixed top-0 left-0 right-0 z-[52] bg-logo-green transition-opacity duration-500 ease-out pointer-events-none"
         style={{
-          bottom: 'calc(max(env(safe-area-inset-bottom), 20px) + 12px)',
+          height: 'max(env(safe-area-inset-top), 20px)',
+          opacity: tabExpanded ? 0 : 1,
+        }}
+      />
+
+      {/* Theme toggle - top right */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          cycleTheme()
+        }}
+        className="fixed z-[51] w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-all duration-500 ease-out"
+        style={{
+          top: tabExpanded
+            ? isInstalled
+              ? 'calc(max(env(safe-area-inset-top), 20px) + 140px)'
+              : 'calc(max(env(safe-area-inset-top), 20px) + 100px)'
+            : 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
           right: '12px'
         }}
-        onClick={(e) => e.stopPropagation()}
+        aria-label={`Theme: ${theme}`}
       >
-        {/* Light */}
-        <button
-          onClick={() => setTheme('light')}
-          className={`w-7 h-7 flex items-center justify-center rounded-full transition-all ${
-            theme === 'light'
-              ? 'bg-foreground text-background'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-          aria-label="Light mode"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        </button>
-        {/* System */}
-        <button
-          onClick={() => setTheme('system')}
-          className={`w-7 h-7 flex items-center justify-center rounded-full transition-all ${
-            theme === 'system'
-              ? 'bg-foreground text-background'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-          aria-label="System mode"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {theme === 'system' && (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
-        </button>
-        {/* Dark */}
-        <button
-          onClick={() => setTheme('dark')}
-          className={`w-7 h-7 flex items-center justify-center rounded-full transition-all ${
-            theme === 'dark'
-              ? 'bg-foreground text-background'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-          aria-label="Dark mode"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        )}
+        {theme === 'light' && (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        )}
+        {theme === 'dark' && (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
           </svg>
+        )}
+      </button>
+
+      {/* Install app button - top left */}
+      {canInstall && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            if (isIOS) {
+              setShowIOSInstructions(true)
+            } else {
+              promptInstall()
+            }
+          }}
+          className="fixed z-[51] w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-all duration-500 ease-out"
+          style={{
+            top: tabExpanded
+              ? isInstalled
+                ? 'calc(max(env(safe-area-inset-top), 20px) + 140px)'
+                : 'calc(max(env(safe-area-inset-top), 20px) + 100px)'
+              : 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
+            left: '12px'
+          }}
+          aria-label="Install app"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+          </svg>
         </button>
-      </div>
+      )}
 
+      {/* iOS install instructions modal */}
+      {showIOSInstructions && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-6"
+          onClick={() => setShowIOSInstructions(false)}
+        >
+          <div
+            className="bg-card rounded-2xl p-6 max-w-sm w-full text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-logo-green/20 flex items-center justify-center">
+              <svg className="w-6 h-6 text-logo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Add to Home Screen</h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              To install this app on your iPhone:
+            </p>
+            <ol className="text-left text-sm text-muted-foreground space-y-3 mb-6">
+              <li className="flex gap-3">
+                <span className="w-6 h-6 rounded-full bg-logo-green/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-logo-green font-bold text-xs">1</span>
+                </span>
+                <span>Tap the <strong className="text-foreground">Share</strong> button in Safari</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="w-6 h-6 rounded-full bg-logo-green/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-logo-green font-bold text-xs">2</span>
+                </span>
+                <span>Scroll down and tap <strong className="text-foreground">Add to Home Screen</strong></span>
+              </li>
+              <li className="flex gap-3">
+                <span className="w-6 h-6 rounded-full bg-logo-green/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-logo-green font-bold text-xs">3</span>
+                </span>
+                <span>Tap <strong className="text-foreground">Add</strong> to confirm</span>
+              </li>
+            </ol>
+            <button
+              onClick={() => setShowIOSInstructions(false)}
+              className="py-2 px-6 rounded-full bg-logo-green text-white font-medium"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
 
-      {/* Tab-style navbar with center bulge - clickable to slide down and reveal slogan */}
+      {/* Tab-style navbar with center bulge */}
       <div
-        className="fixed left-0 right-0 z-50 cursor-pointer transition-all duration-500 ease-out"
+        className="fixed left-0 right-0 z-50 transition-all duration-500 ease-out pointer-events-none"
         style={{
-          top: tabExpanded ? '20px' : 'calc(max(env(safe-area-inset-top), 20px) - 40px)',
+          top: tabExpanded
+            ? 'calc(max(env(safe-area-inset-top), 20px))'
+            : isInstalled
+              ? '-40px'
+              : 'calc(max(env(safe-area-inset-top), 20px) - 45px)',
         }}
-        onClick={() => setTabExpanded(!tabExpanded)}
       >
         {/* Hidden slogan bar at top - full width green background */}
         <div
@@ -181,15 +253,17 @@ export function BackgroundPicker({
           />
         </svg>
 
-        {/* Logo and text positioned over the center bulge */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3"
-          style={{ bottom: '32px' }}
+        {/* Clickable tab area - covers the center bulge portion */}
+        <button
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3 cursor-pointer pointer-events-auto bg-transparent border-none p-4"
+          style={{ bottom: '16px' }}
+          onClick={() => setTabExpanded(!tabExpanded)}
+          aria-label={tabExpanded ? 'Collapse header' : 'Expand header'}
         >
           <img
             src="/logo/logo-color.png"
             alt="Evergreen Collective"
-            className="h-12 w-12 object-contain"
+            className="h-12 w-12 object-contain pointer-events-none"
           />
           <div className="flex flex-col">
             <span
@@ -205,7 +279,7 @@ export function BackgroundPicker({
               Collective
             </span>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Spacer for fixed header */}
@@ -213,8 +287,10 @@ export function BackgroundPicker({
         className="transition-all duration-500 ease-out"
         style={{
           height: tabExpanded
-            ? 'calc(max(env(safe-area-inset-top), 12px) + 96px)'
-            : 'calc(max(env(safe-area-inset-top), 12px) + 68px)',
+            ? isInstalled
+              ? 'calc(max(env(safe-area-inset-top), 20px) + 170px)'
+              : 'calc(max(env(safe-area-inset-top), 20px) + 130px)'
+            : 'calc(max(env(safe-area-inset-top), 20px) + 60px)',
         }}
       />
 

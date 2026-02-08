@@ -1,0 +1,26 @@
+{
+  "name": "Evergreen Collective",
+  "short_name": "Evergreen",
+  "description": "Portland Timbers lock screen wallpapers with live schedule",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#004F30",
+  "theme_color": "#004F30",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "personalization"],
+  "lang": "en-US"
+}
