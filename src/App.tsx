@@ -146,7 +146,7 @@ function App() {
           />
 
           {/* Tab shape matching main page - collapsed state */}
-          <div className="relative">
+          <div className="relative" style={{ marginTop: '-6px' }}>
             {/* Main tab shape */}
             <svg
               className="w-full block"
