@@ -138,79 +138,131 @@ function App() {
 
       {/* Image preview modal - z-[60] to be above tabs (z-50) and status bar bg (z-40) */}
       {imageDataUrl && (
-        <div className="fixed inset-0 z-[60] bg-gradient-to-b from-black via-black/95 to-black flex flex-col items-center justify-center p-6">
-          {/* Header text */}
-          <div className="text-center mb-6 shrink-0">
-            {downloaded ? (
-              <>
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-accent-green/20 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h2
-                  className="text-white text-xl font-bold mb-1"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
-                  {isMobile ? 'Saved!' : 'Downloaded!'}
-                </h2>
-                <p className="text-white/60 text-sm">
-                  {isMobile ? 'Check your Photos app' : 'Check your Downloads folder'}
-                </p>
-              </>
-            ) : (
-              <>
-                <h2
-                  className="text-white text-xl font-bold mb-1"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
-                  Your Wallpaper is Ready!
-                </h2>
-                <p className="text-white/60 text-sm">
-                  Tap below to save to your device
-                </p>
-              </>
-            )}
-          </div>
+        <div className="fixed inset-0 z-[60] bg-white flex flex-col">
+          {/* Status bar background */}
+          <div
+            className="bg-logo-green"
+            style={{ height: 'max(env(safe-area-inset-top), 20px)' }}
+          />
 
-          {/* Phone frame with image */}
+          {/* Tab shape matching main page - collapsed state */}
           <div className="relative">
-            {/* Subtle glow effect behind phone */}
-            <div className="absolute inset-0 bg-logo-green/20 blur-3xl rounded-full scale-150 pointer-events-none" />
-            {/* Phone frame */}
-            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
-              <img
-                src={imageDataUrl}
-                alt="Timbers Wallpaper"
-                className="max-h-[55vh] w-auto pointer-events-none"
+            {/* Main tab shape */}
+            <svg
+              className="w-full block"
+              viewBox="0 0 400 100"
+              preserveAspectRatio="none"
+              style={{ height: '90px' }}
+            >
+              <rect x="0" y="0" width="400" height="2" fill="#597B59" />
+              <path
+                d="M0,0 L0,8 L60,8 Q75,8 82,25 L92,50 Q100,70 120,70 L280,70 Q300,70 308,50 L318,25 Q325,8 340,8 L400,8 L400,0 Z"
+                fill="#597B59"
               />
+            </svg>
+
+            {/* Logo and text positioned over the center bulge */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3"
+              style={{ bottom: '32px' }}
+            >
+              <img
+                src="/logo/logo-color.png"
+                alt="Evergreen Collective"
+                className="h-12 w-12 object-contain"
+              />
+              <div className="flex flex-col">
+                <span
+                  className="text-white text-lg tracking-tight leading-tight font-bold"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  Evergreen
+                </span>
+                <span
+                  className="text-white/80 text-sm font-light leading-tight"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Collective
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-4 mt-6">
-            {downloaded ? (
-              <button
-                onClick={handleClose}
-                className="py-3 px-8 rounded-full bg-logo-green text-white font-medium shadow-lg"
-              >
-                Done
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={isMobile ? handleSaveToPhotos : handleDownload}
-                  className="py-3 px-8 rounded-full bg-logo-green text-white font-medium shadow-lg"
-                >
-                  {isMobile ? 'Save to Photos' : 'Download Wallpaper'}
-                </button>
+          {/* Content area */}
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
+            {/* Header text */}
+            <div className="text-center mb-6 shrink-0">
+              {downloaded ? (
+                <>
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-logo-green/20 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-logo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h2
+                    className="text-gray-900 text-xl font-bold mb-1"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    {isMobile ? 'Saved!' : 'Downloaded!'}
+                  </h2>
+                  <p className="text-gray-500 text-sm">
+                    {isMobile ? 'Check your Photos app' : 'Check your Downloads folder'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2
+                    className="text-gray-900 text-xl font-bold mb-1"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    Your Wallpaper is Ready!
+                  </h2>
+                  <p className="text-gray-500 text-sm">
+                    Tap below to save to your device
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Phone frame with image */}
+            <div className="relative">
+              {/* Subtle glow effect behind phone */}
+              <div className="absolute inset-0 bg-logo-green/10 blur-3xl rounded-full scale-150 pointer-events-none" />
+              {/* Phone frame */}
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-gray-200">
+                <img
+                  src={imageDataUrl}
+                  alt="Timbers Wallpaper"
+                  className="max-h-[50vh] w-auto pointer-events-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-6">
+              {downloaded ? (
                 <button
                   onClick={handleClose}
-                  className="py-3 px-8 rounded-full bg-white/20 text-white font-medium"
+                  className="py-3 px-8 rounded-full bg-logo-green text-white font-medium shadow-lg"
                 >
-                  Close
+                  Done
                 </button>
-              </>
-            )}
+              ) : (
+                <>
+                  <button
+                    onClick={isMobile ? handleSaveToPhotos : handleDownload}
+                    className="py-3 px-8 rounded-full bg-logo-green text-white font-medium shadow-lg"
+                  >
+                    {isMobile ? 'Save to Photos' : 'Download Wallpaper'}
+                  </button>
+                  <button
+                    onClick={handleClose}
+                    className="py-3 px-8 rounded-full bg-gray-100 text-gray-700 font-medium"
+                  >
+                    Close
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

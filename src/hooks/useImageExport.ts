@@ -67,6 +67,10 @@ export function useImageExport(): UseImageExportResult {
       setDebugLog([])
       log('Starting export...')
 
+      // Track start time for minimum loading duration
+      const startTime = Date.now()
+      const MIN_LOADING_MS = 800
+
       try {
         // Create canvas
         const canvas = document.createElement('canvas')
@@ -208,6 +212,13 @@ export function useImageExport(): UseImageExportResult {
 
         // Show image preview (for mobile long-press save or desktop download)
         const dataUrl = canvas.toDataURL('image/png')
+
+        // Ensure minimum loading time for smooth UX
+        const elapsed = Date.now() - startTime
+        if (elapsed < MIN_LOADING_MS) {
+          await new Promise(resolve => setTimeout(resolve, MIN_LOADING_MS - elapsed))
+        }
+
         setImageDataUrl(dataUrl)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to export image')
