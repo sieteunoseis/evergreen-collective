@@ -1,0 +1,7 @@
+{
+  "name": "lockscreen",
+  "compatibility_date": "2025-05-27",
+  "assets": {
+    "directory": "./dist"
+  }
+}
